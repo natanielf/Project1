@@ -60,7 +60,9 @@ public class p1 {
 		}
 		while (s.hasNextLine()) {
 			char[] line = s.nextLine().toCharArray();
-			map[line[2]][line[4]] = line[0];
+			int row = Character.getNumericValue(line[2]);
+			int col = Character.getNumericValue(line[4]);
+			map[row][col] = line[0];
 		}
 	}
 
