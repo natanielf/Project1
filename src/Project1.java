@@ -41,6 +41,8 @@ public class Project1 {
 		System.out.println(p2);
 
 		System.out.println(Project1.textToCoordinate(f1));
+
+		System.out.println(Project1.coordinateToText(f2));
 	}
 
 	public void textBased() {
@@ -88,6 +90,44 @@ public class Project1 {
 					}
 				}
 				row++;
+			}
+			return str;
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static String coordinateToText(File f) {
+		boolean isTextBased = f.getPath().substring(0, f.getPath().length() - 4).contains("t");
+		if (isTextBased)
+			return null;
+
+		try {
+			Scanner s = new Scanner(f);
+			String str = "";
+			int rows = s.nextInt();
+			int cols = s.nextInt();
+			int rooms = s.nextInt();
+			char[][] map = new char[rows][cols];
+			s.nextLine();
+			for (int r = 0; r < map.length; r++) {
+				for (int c = 0; c < map[r].length; c++) {
+					map[r][c] = '.';
+				}
+			}
+			while (s.hasNextLine()) {
+				char[] line = s.nextLine().toCharArray();
+				int row = Character.getNumericValue(line[2]);
+				int col = Character.getNumericValue(line[4]);
+				map[row][col] = line[0];
+			}
+			str += rows + " " + cols + " " + rooms + "\n";
+			for (int r = 0; r < map.length; r++) {
+				for (int c = 0; c < map[r].length; c++) {
+					str += map[r][c];
+				}
+				str += "\n";
 			}
 			return str;
 		} catch (FileNotFoundException e) {
