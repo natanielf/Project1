@@ -6,6 +6,7 @@ public class Project1 {
 
 	private int rows, cols, rooms;
 	private char[][] map;
+	private Queue<char[]> queue;
 	private Scanner s;
 	private boolean isTextBased;
 
