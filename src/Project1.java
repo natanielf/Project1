@@ -50,21 +50,30 @@ public class Project1 {
 	}
 
 	public void queueMove() {
-		int r = 0, c = 0;
-		for (; r < map.length; r++) {
-			for (; c < map[r].length; c++) {
-				if (map[r][c] == 'K') {
-					break;
+		if (queue.size() == 0) {
+			int r = 0, c = 0;
+			for (; r < map.length; r++) {
+				for (; c < map[r].length; c++) {
+					if (map[r][c] == 'K') {
+						break;
+					}
 				}
 			}
-		}
-		int[] coordinates = { r, c };
-
-		if (queue.size() == 0) {
+			int[] coordinates = { r, c };
 			queue.add(coordinates);
 		} else {
-			if (Character.getNumericValue(coordinates[0]) > 0) {
+			int[] coordinates = queue.remove();
+			if (coordinates[0] > 0) {
 				int[] newCoordinates = { coordinates[0] - 1, coordinates[1] };
+				queue.add(newCoordinates);
+			} else if (coordinates[0] < map.length - 1) {
+				int[] newCoordinates = { coordinates[0] + 1, coordinates[1] };
+				queue.add(newCoordinates);
+			} else if (coordinates[1] < map[0].length - 1) {
+				int[] newCoordinates = { coordinates[0], coordinates[1] + 1 };
+				queue.add(newCoordinates);
+			} else if (coordinates[1] > 0) {
+				int[] newCoordinates = { coordinates[0], coordinates[1] - 1 };
 				queue.add(newCoordinates);
 			}
 		}
