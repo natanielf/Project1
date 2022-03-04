@@ -6,7 +6,8 @@ public class Project1 {
 
 	private int rows, cols, rooms;
 	private char[][] map;
-	private Queue<char[]> queue;
+	private char[] coordinates;
+	private Queue<int[]> queue;
 	private Scanner s;
 	private boolean isTextBased;
 
@@ -25,6 +26,8 @@ public class Project1 {
 			else
 				coordinateBased();
 
+			this.queue = new Queue<>();
+			queueMove();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -44,6 +47,27 @@ public class Project1 {
 		System.out.println(Project1.textToCoordinate(f1));
 
 		System.out.println(Project1.coordinateToText(f2));
+	}
+
+	public void queueMove() {
+		int r = 0, c = 0;
+		for (; r < map.length; r++) {
+			for (; c < map[r].length; c++) {
+				if (map[r][c] == 'K') {
+					break;
+				}
+			}
+		}
+		int[] coordinates = { r, c };
+
+		if (queue.size() == 0) {
+			queue.add(coordinates);
+		} else {
+			if (Character.getNumericValue(coordinates[0]) > 0) {
+				int[] newCoordinates = { coordinates[0] - 1, coordinates[1] };
+				queue.add(newCoordinates);
+			}
+		}
 	}
 
 	public void textBased() {
