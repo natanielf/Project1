@@ -65,17 +65,25 @@ public class Project1 {
 			int[] coordinates = queue.remove();
 			if (coordinates[0] > 0) {
 				int[] newCoordinates = { coordinates[0] - 1, coordinates[1] };
+				if (map[newCoordinates[0]][newCoordinates[1]] == '.')
 				queue.add(newCoordinates);
 			} else if (coordinates[0] < map.length - 1) {
 				int[] newCoordinates = { coordinates[0] + 1, coordinates[1] };
+				if (map[newCoordinates[0]][newCoordinates[1]] == '.')
 				queue.add(newCoordinates);
 			} else if (coordinates[1] < map[0].length - 1) {
 				int[] newCoordinates = { coordinates[0], coordinates[1] + 1 };
+				if (map[newCoordinates[0]][newCoordinates[1]] == '.')
 				queue.add(newCoordinates);
 			} else if (coordinates[1] > 0) {
 				int[] newCoordinates = { coordinates[0], coordinates[1] - 1 };
+				if (map[newCoordinates[0]][newCoordinates[1]] == '.')
 				queue.add(newCoordinates);
 			}
+		}
+		int[] coordinates = queue.remove();
+		if (map[coordinates[0]][coordinates[1]] != 'C') {
+			queueMove();
 		}
 	}
 
