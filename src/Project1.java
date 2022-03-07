@@ -7,7 +7,7 @@ public class Project1 {
 	private int rows, cols, rooms;
 	private char[][] map;
 	private boolean[][] visited;
-	private Queue<int[]> queue;
+	private Queue<int[]> enqueue, dequeue;
 	private int[] cake;
 	private Scanner s;
 	private boolean isTextBased;
@@ -29,7 +29,8 @@ public class Project1 {
 			else
 				coordinateBased();
 
-			this.queue = new Queue<>();
+			this.enqueue = new Queue<>();
+			this.dequeue = new Queue<>();
 			int kR = -1;
 			int kC = -1;
 			for (int r = 0; r < map.length; r++) {
@@ -41,9 +42,9 @@ public class Project1 {
 				}
 			}
 			int[] coordinates = { kR, kC };
-			queue.add(coordinates);
+			enqueue.add(coordinates);
 			addVisit(kR, kC);
-			queueMove(kR, kC);
+			queueMove();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -54,6 +55,7 @@ public class Project1 {
 		System.out.println(f1.getPath());
 		Project1 p1 = new Project1(f1);
 		System.out.println(p1);
+		// p1.getCakeCoordinates();
 
 		// File f2 = new File("./maps/map1c.txt");
 		// System.out.println(f2.getPath());
@@ -65,32 +67,95 @@ public class Project1 {
 		// System.out.println(Project1.coordinateToText(f2));
 	}
 
-	public void queueMove(int row, int col) {
+	public void queueMove() {
+		int[] coordinates = enqueue.remove();
+		int row = coordinates[0];
+		int col = coordinates[1];
+		dequeue.add(coordinates);
 
+		// North
 		if (isWalkable(row - 1, col) && !isVisited(row - 1, col)) {
 			int[] newCoordinates = { row - 1, col };
-			this.queue.add(newCoordinates);
+			this.enqueue.add(newCoordinates);
+			addVisit(row - 1, col);
+			checkCake(row - 1, col);
+			System.out.println("N");
+		}
+
+		// South
+		if (isWalkable(row + 1, col) && !isVisited(row + 1, col)) {
+			int[] newCoordinates = { row + 1, col };
+			this.enqueue.add(newCoordinates);
+			addVisit(row + 1, col);
+			checkCake(row + 1, col);
+			System.out.println("S");
+		}
+
+		// East
+		if (isWalkable(row, col + 1) && !isVisited(row, col + 1)) {
+			int[] newCoordinates = { row, col + 1 };
+			this.enqueue.add(newCoordinates);
+			addVisit(row, col + 1);
+			checkCake(row, col + 1);
+			System.out.println("E");
+		}
+
+		// West
+		if (isWalkable(row, col - 1) && !isVisited(row, col - 1)) {
+			int[] newCoordinates = { row, col - 1 };
+			this.enqueue.add(newCoordinates);
+			addVisit(row, col - 1);
+			checkCake(row, col - 1);
+			System.out.println("W");
+		}
+
+		if (this.cake == null) {
+			if (isWalkable(row - 1, col) && !isVisited(row - 1, col)) {
+				queueMove(row - 1, col);
+			}
+			if (isWalkable(row + 1, col) && !isVisited(row + 1, col)) {
+				queueMove(row + 1, col);
+			}
+			if (isWalkable(row, col + 1) && !isVisited(row, col + 1)) {
+				queueMove(row, col + 1);
+			}
+			if (isWalkable(row, col - 1) && !isVisited(row, col - 1)) {
+				queueMove(row, col - 1);
+			}
+		} else {
+			System.out.println("Cake - Row: " + this.cake[0] + " Column: " + this.cake[1]);
+		}
+	}
+
+	public void queueMove(int row, int col) {
+		// North
+		if (isWalkable(row - 1, col) && !isVisited(row - 1, col)) {
+			int[] newCoordinates = { row - 1, col };
+			this.enqueue.add(newCoordinates);
 			addVisit(row - 1, col);
 			checkCake(row - 1, col);
 		}
 
+		// South
 		if (isWalkable(row + 1, col) && !isVisited(row + 1, col)) {
 			int[] newCoordinates = { row + 1, col };
-			this.queue.add(newCoordinates);
+			this.enqueue.add(newCoordinates);
 			addVisit(row + 1, col);
 			checkCake(row + 1, col);
 		}
 
+		// East
 		if (isWalkable(row, col + 1) && !isVisited(row, col + 1)) {
 			int[] newCoordinates = { row, col + 1 };
-			this.queue.add(newCoordinates);
+			this.enqueue.add(newCoordinates);
 			addVisit(row, col + 1);
 			checkCake(row, col + 1);
 		}
 
+		// West
 		if (isWalkable(row, col - 1) && !isVisited(row, col - 1)) {
 			int[] newCoordinates = { row, col - 1 };
-			this.queue.add(newCoordinates);
+			this.enqueue.add(newCoordinates);
 			addVisit(row, col - 1);
 			checkCake(row, col - 1);
 		}
@@ -143,7 +208,10 @@ public class Project1 {
 			this.cake[0] = r;
 			this.cake[1] = c;
 		}
+	}
 
+	public String getCakeCoordinates() {
+		return "Row: " + this.cake[0] + " Column" + this.cake[1];
 	}
 
 	public void textBased() {
