@@ -53,7 +53,7 @@ public class Project1 {
 		Project1 p1 = new Project1(f1);
 		System.out.println(p1);
 		System.out.println(p1.getCakeCoordinates());
-		// p1.printThePathFromKirbyToCakeAsAStringForQueueBasedPathfindingAlgorithm();
+		p1.printThePathFromKirbyToCakeAsAStringForQueueBasedPathfindingAlgorithm();
 
 		// File f2 = new File("./maps/map1c.txt");
 		// System.out.println(f2.getPath());
@@ -156,7 +156,7 @@ public class Project1 {
 			this.cake[1] = c;
 		}
 	}
-	
+
 	public String getCakeCoordinates() {
 		return "Cake: row " + this.cake[0] + ", column " + this.cake[1];
 	}

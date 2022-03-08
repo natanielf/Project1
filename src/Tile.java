@@ -8,10 +8,14 @@ public class Tile {
 		this.value = value;
 		this.visited = visited;
 	}
-	
+
 	public Tile(char value) {
 		this.value = value;
 		this.visited = false;
+	}
+
+	public boolean isWalkable() {
+		return this.value == '.';
 	}
 
 	public char getValue() {
