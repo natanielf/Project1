@@ -5,10 +5,9 @@ import java.util.Scanner;
 public class Project1 {
 
 	private int rows, cols, rooms;
-	private char[][] map;
-	private boolean[][] visited;
+	private Tile[][] map;
 	private Queue<int[]> enqueue, dequeue;
-	private int[] cake;
+	private int[] kirby, cake;
 	private Scanner s;
 	private boolean isTextBased;
 
@@ -18,10 +17,8 @@ public class Project1 {
 			this.rows = s.nextInt();
 			this.cols = s.nextInt();
 			this.rooms = s.nextInt();
-			this.map = new char[rows][cols];
+			this.map = new Tile[rows][cols];
 			this.s.nextLine();
-			this.visited = new boolean[rows][cols];
-			resetVisited();
 			this.isTextBased = f.getPath().substring(0, f.getPath().length() - 4).contains("t");
 
 			if (isTextBased)
@@ -35,15 +32,15 @@ public class Project1 {
 			int kC = -1;
 			for (int r = 0; r < map.length; r++) {
 				for (int c = 0; c < map[r].length; c++) {
-					if (map[r][c] == 'K') {
+					if (map[r][c].getValue() == 'K') {
 						kR = r;
 						kC = c;
 					}
 				}
 			}
-			int[] coordinates = { kR, kC };
-			enqueue.add(coordinates);
-			addVisit(kR, kC);
+			kirby = new int[] { kR, kC };
+			enqueue.add(kirby);
+			map[kR][kC].setVisited(true);
 			queueMove();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -55,7 +52,8 @@ public class Project1 {
 		System.out.println(f1.getPath());
 		Project1 p1 = new Project1(f1);
 		System.out.println(p1);
-		// p1.getCakeCoordinates();
+		System.out.println(p1.getCakeCoordinates());
+		// p1.printThePathFromKirbyToCakeAsAStringForQueueBasedPathfindingAlgorithm();
 
 		// File f2 = new File("./maps/map1c.txt");
 		// System.out.println(f2.getPath());
@@ -67,6 +65,19 @@ public class Project1 {
 		// System.out.println(Project1.coordinateToText(f2));
 	}
 
+	public void printThePathFromKirbyToCakeAsAStringForQueueBasedPathfindingAlgorithm() {
+		for (int i = 0; i < dequeue.size() - 1; i++) {
+			int[] curr = dequeue.remove();
+			int[] next = dequeue.remove();
+			if ((curr[0] == next[0] && curr[1] == next[1] || curr[1] == next[1] + 1 || curr[1] == next[1] - 1)
+					|| (curr[1] == next[1] && curr[0] == next[0] || curr[0] == next[0] + 1 || curr[0] == next[0] - 1)) {
+				{
+					System.out.println("row: " + curr[0] + " col: " + curr[1]);
+				}
+			}
+		}
+	}
+
 	public void queueMove() {
 		int[] coordinates = enqueue.remove();
 		int row = coordinates[0];
@@ -74,123 +85,59 @@ public class Project1 {
 		dequeue.add(coordinates);
 
 		// North
-		if (isWalkable(row - 1, col) && !isVisited(row - 1, col)) {
+		if (isWalkable(row - 1, col) && !map[row - 1][col].isVisited()) {
 			int[] newCoordinates = { row - 1, col };
 			this.enqueue.add(newCoordinates);
-			addVisit(row - 1, col);
+			map[row - 1][col].setVisited(true);
 			checkCake(row - 1, col);
-			System.out.println("N");
 		}
 
 		// South
-		if (isWalkable(row + 1, col) && !isVisited(row + 1, col)) {
+		if (isWalkable(row + 1, col) && !map[row + 1][col].isVisited()) {
 			int[] newCoordinates = { row + 1, col };
 			this.enqueue.add(newCoordinates);
-			addVisit(row + 1, col);
+			map[row + 1][col].setVisited(true);
 			checkCake(row + 1, col);
-			System.out.println("S");
 		}
 
 		// East
-		if (isWalkable(row, col + 1) && !isVisited(row, col + 1)) {
+		if (isWalkable(row, col + 1) && !map[row][col + 1].isVisited()) {
 			int[] newCoordinates = { row, col + 1 };
 			this.enqueue.add(newCoordinates);
-			addVisit(row, col + 1);
+			map[row][col + 1].setVisited(true);
 			checkCake(row, col + 1);
-			System.out.println("E");
 		}
 
 		// West
-		if (isWalkable(row, col - 1) && !isVisited(row, col - 1)) {
+		if (isWalkable(row, col - 1) && !map[row][col - 1].isVisited()) {
 			int[] newCoordinates = { row, col - 1 };
 			this.enqueue.add(newCoordinates);
-			addVisit(row, col - 1);
+			map[row][col - 1].setVisited(true);
 			checkCake(row, col - 1);
-			System.out.println("W");
 		}
 
 		if (this.cake == null) {
-			if (isWalkable(row - 1, col) && !isVisited(row - 1, col)) {
-				queueMove(row - 1, col);
+			{
+				int[] temp = { row - 1, col };
+				enqueue.add(temp);
+				queueMove();
 			}
-			if (isWalkable(row + 1, col) && !isVisited(row + 1, col)) {
-				queueMove(row + 1, col);
+			{
+				int[] temp = { row + 1, col };
+				enqueue.add(temp);
+				queueMove();
 			}
-			if (isWalkable(row, col + 1) && !isVisited(row, col + 1)) {
-				queueMove(row, col + 1);
+			{
+				int[] temp = { row, col + 1 };
+				enqueue.add(temp);
+				queueMove();
 			}
-			if (isWalkable(row, col - 1) && !isVisited(row, col - 1)) {
-				queueMove(row, col - 1);
-			}
-		} else {
-			System.out.println("Cake - Row: " + this.cake[0] + " Column: " + this.cake[1]);
-		}
-	}
-
-	public void queueMove(int row, int col) {
-		// North
-		if (isWalkable(row - 1, col) && !isVisited(row - 1, col)) {
-			int[] newCoordinates = { row - 1, col };
-			this.enqueue.add(newCoordinates);
-			addVisit(row - 1, col);
-			checkCake(row - 1, col);
-		}
-
-		// South
-		if (isWalkable(row + 1, col) && !isVisited(row + 1, col)) {
-			int[] newCoordinates = { row + 1, col };
-			this.enqueue.add(newCoordinates);
-			addVisit(row + 1, col);
-			checkCake(row + 1, col);
-		}
-
-		// East
-		if (isWalkable(row, col + 1) && !isVisited(row, col + 1)) {
-			int[] newCoordinates = { row, col + 1 };
-			this.enqueue.add(newCoordinates);
-			addVisit(row, col + 1);
-			checkCake(row, col + 1);
-		}
-
-		// West
-		if (isWalkable(row, col - 1) && !isVisited(row, col - 1)) {
-			int[] newCoordinates = { row, col - 1 };
-			this.enqueue.add(newCoordinates);
-			addVisit(row, col - 1);
-			checkCake(row, col - 1);
-		}
-
-		if (cake == null) {
-			if (isWalkable(row - 1, col) && !isVisited(row - 1, col)) {
-				queueMove(row - 1, col);
-			}
-			if (isWalkable(row + 1, col) && !isVisited(row + 1, col)) {
-				queueMove(row + 1, col);
-			}
-			if (isWalkable(row, col + 1) && !isVisited(row, col + 1)) {
-				queueMove(row, col + 1);
-			}
-			if (isWalkable(row, col - 1) && !isVisited(row, col - 1)) {
-				queueMove(row, col - 1);
+			{
+				int[] temp = { row, col - 1 };
+				enqueue.add(temp);
+				queueMove();
 			}
 		}
-
-	}
-
-	public void resetVisited() {
-		for (int r = 0; r < map.length; r++) {
-			for (int c = 0; c < map[r].length; c++) {
-				this.visited[r][c] = false;
-			}
-		}
-	}
-
-	public void addVisit(int r, int c) {
-		this.visited[r][c] = true;
-	}
-
-	public boolean isVisited(int r, int c) {
-		return this.visited[r][c];
 	}
 
 	public boolean isWalkable(int r, int c) {
@@ -203,15 +150,15 @@ public class Project1 {
 	}
 
 	public void checkCake(int r, int c) {
-		if (map[r][c] == 'C') {
+		if (map[r][c].getValue() == 'C') {
 			cake = new int[2];
 			this.cake[0] = r;
 			this.cake[1] = c;
 		}
 	}
-
+	
 	public String getCakeCoordinates() {
-		return "Row: " + this.cake[0] + " Column" + this.cake[1];
+		return "Cake: row " + this.cake[0] + ", column " + this.cake[1];
 	}
 
 	public void textBased() {
@@ -219,7 +166,7 @@ public class Project1 {
 		while (s.hasNextLine()) {
 			char[] line = s.nextLine().toCharArray();
 			for (int c = 0; c < line.length; c++) {
-				map[r][c] = line[c];
+				map[r][c] = new Tile(line[c]);
 			}
 			r++;
 		}
@@ -228,14 +175,14 @@ public class Project1 {
 	public void coordinateBased() {
 		for (int r = 0; r < map.length; r++) {
 			for (int c = 0; c < map[r].length; c++) {
-				map[r][c] = '.';
+				map[r][c] = new Tile('.');
 			}
 		}
 		while (s.hasNextLine()) {
 			char[] line = s.nextLine().toCharArray();
 			int row = Character.getNumericValue(line[2]);
 			int col = Character.getNumericValue(line[4]);
-			map[row][col] = line[0];
+			map[row][col].setValue(line[0]);
 		}
 	}
 
@@ -310,7 +257,7 @@ public class Project1 {
 		String str = "";
 		for (int r = 0; r < map.length; r++) {
 			for (int c = 0; c < map[r].length; c++) {
-				str += map[r][c];
+				str += map[r][c].getValue();
 			}
 			str += "\n";
 		}
