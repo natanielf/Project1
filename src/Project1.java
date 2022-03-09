@@ -219,22 +219,23 @@ public class Project1 {
 			return null;
 
 		try {
-			Scanner s = new Scanner(f);
-			String str = "";
-			str += s.nextLine() + "\n";
-			int row = 0;
-			while (s.hasNextLine()) {
-				char[] line = s.nextLine().toCharArray();
-				for (int i = 0; i < line.length; i++) {
-					char curr = line[i];
-					if (curr != '.') {
-						str += Character.toString(curr) + " " + row + " " + i;
-						str += "\n";
+			try (Scanner s = new Scanner(f)) {
+				String str = "";
+				str += s.nextLine() + "\n";
+				int row = 0;
+				while (s.hasNextLine()) {
+					char[] line = s.nextLine().toCharArray();
+					for (int i = 0; i < line.length; i++) {
+						char curr = line[i];
+						if (curr != '.') {
+							str += Character.toString(curr) + " " + row + " " + i;
+							str += "\n";
+						}
 					}
+					row++;
 				}
-				row++;
+				return str;
 			}
-			return str;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			return null;
@@ -247,32 +248,33 @@ public class Project1 {
 			return null;
 
 		try {
-			Scanner s = new Scanner(f);
-			String str = "";
-			int rows = s.nextInt();
-			int cols = s.nextInt();
-			int rooms = s.nextInt();
-			char[][] map = new char[rows][cols];
-			s.nextLine();
-			for (int r = 0; r < map.length; r++) {
-				for (int c = 0; c < map[r].length; c++) {
-					map[r][c] = '.';
+			try (Scanner s = new Scanner(f)) {
+				String str = "";
+				int rows = s.nextInt();
+				int cols = s.nextInt();
+				int rooms = s.nextInt();
+				char[][] map = new char[rows][cols];
+				s.nextLine();
+				for (int r = 0; r < map.length; r++) {
+					for (int c = 0; c < map[r].length; c++) {
+						map[r][c] = '.';
+					}
 				}
-			}
-			while (s.hasNextLine()) {
-				char[] line = s.nextLine().toCharArray();
-				int row = Character.getNumericValue(line[2]);
-				int col = Character.getNumericValue(line[4]);
-				map[row][col] = line[0];
-			}
-			str += rows + " " + cols + " " + rooms + "\n";
-			for (int r = 0; r < map.length; r++) {
-				for (int c = 0; c < map[r].length; c++) {
-					str += map[r][c];
+				while (s.hasNextLine()) {
+					char[] line = s.nextLine().toCharArray();
+					int row = Character.getNumericValue(line[2]);
+					int col = Character.getNumericValue(line[4]);
+					map[row][col] = line[0];
 				}
-				str += "\n";
+				str += rows + " " + cols + " " + rooms + "\n";
+				for (int r = 0; r < map.length; r++) {
+					for (int c = 0; c < map[r].length; c++) {
+						str += map[r][c];
+					}
+					str += "\n";
+				}
+				return str;
 			}
-			return str;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			return null;
