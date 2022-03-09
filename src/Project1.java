@@ -66,15 +66,30 @@ public class Project1 {
 	}
 
 	public void printThePathFromKirbyToCakeAsAStringForQueueBasedPathfindingAlgorithm() {
+		System.out.println("Solution:");
+		Tile[][] solution = new Tile[this.rows][this.cols];
+		int[] curr = dequeue.remove();
+		int[] next = dequeue.remove();
+		for (int r = 0; r < map.length; r++) {
+			for (int c = 0; c < map[r].length; c++) {
+				solution[r][c] = new Tile(map[r][c].getValue());
+			}
+		}
 		for (int i = 0; i < dequeue.size() - 1; i++) {
-			int[] curr = dequeue.remove();
-			int[] next = dequeue.remove();
+			curr = next;
+			next = dequeue.remove();
 			if ((curr[0] == next[0] && curr[1] == next[1] || curr[1] == next[1] + 1 || curr[1] == next[1] - 1)
 					|| (curr[1] == next[1] && curr[0] == next[0] || curr[0] == next[0] + 1 || curr[0] == next[0] - 1)) {
 				{
-					System.out.println("row: " + curr[0] + " col: " + curr[1]);
+					solution[curr[0]][curr[1]].setValue('+');
 				}
 			}
+		}
+		for (int r = 0; r < solution.length; r++) {
+			for (int c = 0; c < solution[r].length; c++) {
+				System.out.print(solution[r][c].getValue());
+			}
+			System.out.println();
 		}
 	}
 
@@ -90,6 +105,9 @@ public class Project1 {
 			this.enqueue.add(newCoordinates);
 			map[row - 1][col].setVisited(true);
 			checkCake(row - 1, col);
+			if (this.cake != null) {
+				return;
+			}
 		}
 
 		// South
@@ -98,6 +116,9 @@ public class Project1 {
 			this.enqueue.add(newCoordinates);
 			map[row + 1][col].setVisited(true);
 			checkCake(row + 1, col);
+			if (this.cake != null) {
+				return;
+			}
 		}
 
 		// East
@@ -106,6 +127,9 @@ public class Project1 {
 			this.enqueue.add(newCoordinates);
 			map[row][col + 1].setVisited(true);
 			checkCake(row, col + 1);
+			if (this.cake != null) {
+				return;
+			}
 		}
 
 		// West
@@ -114,27 +138,30 @@ public class Project1 {
 			this.enqueue.add(newCoordinates);
 			map[row][col - 1].setVisited(true);
 			checkCake(row, col - 1);
+			if (this.cake != null) {
+				return;
+			}
 		}
 
 		if (this.cake == null) {
 			{
-				int[] temp = { row - 1, col };
-				enqueue.add(temp);
+				int[] next = { row - 1, col };
+				enqueue.add(next);
 				queueMove();
 			}
 			{
-				int[] temp = { row + 1, col };
-				enqueue.add(temp);
+				int[] next = { row + 1, col };
+				enqueue.add(next);
 				queueMove();
 			}
 			{
-				int[] temp = { row, col + 1 };
-				enqueue.add(temp);
+				int[] next = { row, col + 1 };
+				enqueue.add(next);
 				queueMove();
 			}
 			{
-				int[] temp = { row, col - 1 };
-				enqueue.add(temp);
+				int[] next = { row, col - 1 };
+				enqueue.add(next);
 				queueMove();
 			}
 		}
