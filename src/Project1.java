@@ -61,9 +61,7 @@ public class Project1 {
 			next = dequeue.remove();
 			if ((curr[0] == next[0] && curr[1] == next[1] || curr[1] == next[1] + 1 || curr[1] == next[1] - 1)
 					|| (curr[1] == next[1] && curr[0] == next[0] || curr[0] == next[0] + 1 || curr[0] == next[0] - 1)) {
-				{
-					solution[curr[0]][curr[1]].setValue('+');
-				}
+				solution[curr[0]][curr[1]].setValue('+');
 			}
 		}
 		for (int r = 0; r < solution.length; r++) {
@@ -103,9 +101,9 @@ public class Project1 {
 
 	public void queueMove() {
 		int[] coordinates = enqueue.remove();
+		dequeue.add(coordinates);
 		int row = coordinates[0];
 		int col = coordinates[1];
-		dequeue.add(coordinates);
 
 		// North
 		if (isWalkable(row - 1, col) && !map[row - 1][col].isVisited()) {
