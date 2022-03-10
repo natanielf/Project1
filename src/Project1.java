@@ -7,6 +7,7 @@ public class Project1 {
 	private int rows, cols, rooms;
 	private Tile[][] map;
 	private Queue<int[]> enqueue, dequeue;
+	private Stack<int[]> instack, outstack;
 	private int[] kirby, cake;
 	private Scanner s;
 	private boolean isTextBased;
@@ -21,27 +22,16 @@ public class Project1 {
 			this.s.nextLine();
 			this.isTextBased = f.getPath().substring(0, f.getPath().length() - 4).contains("t");
 
-			if (isTextBased)
-				textBased();
-			else
-				coordinateBased();
+			populateMap();
 
-			this.enqueue = new Queue<>();
-			this.dequeue = new Queue<>();
-			int kR = -1;
-			int kC = -1;
-			for (int r = 0; r < map.length; r++) {
-				for (int c = 0; c < map[r].length; c++) {
-					if (map[r][c].getValue() == 'K') {
-						kR = r;
-						kC = c;
-					}
-				}
-			}
-			kirby = new int[] { kR, kC };
-			enqueue.add(kirby);
-			map[kR][kC].setVisited(true);
+			findKirby();
+
+			initQueue();
 			queueMove();
+
+			// initStack();
+			// stackMove();
+
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -54,19 +44,10 @@ public class Project1 {
 		System.out.println(p1);
 		System.out.println(p1.getCakeCoordinates());
 		p1.printThePathFromKirbyToCakeAsAStringForQueueBasedPathfindingAlgorithm();
-
-		// File f2 = new File("./maps/map1c.txt");
-		// System.out.println(f2.getPath());
-		// Project1 p2 = new Project1(f2);
-		// System.out.println(p2);
-
-		// System.out.println(Project1.textToCoordinate(f1));
-
-		// System.out.println(Project1.coordinateToText(f2));
 	}
 
 	public void printThePathFromKirbyToCakeAsAStringForQueueBasedPathfindingAlgorithm() {
-		System.out.println("Solution:");
+		System.out.println("Solution (Queue):");
 		Tile[][] solution = new Tile[this.rows][this.cols];
 		int[] curr = dequeue.remove();
 		int[] next = dequeue.remove();
@@ -91,6 +72,33 @@ public class Project1 {
 			}
 			System.out.println();
 		}
+	}
+
+	public void findKirby() {
+		int kR = -1;
+		int kC = -1;
+		for (int r = 0; r < map.length; r++) {
+			for (int c = 0; c < map[r].length; c++) {
+				if (map[r][c].getValue() == 'K') {
+					kR = r;
+					kC = c;
+				}
+			}
+		}
+		this.kirby = new int[] { kR, kC };
+		map[kirby[0]][kirby[1]].setVisited(true);
+	}
+
+	public void initQueue() {
+		this.enqueue = new Queue<>();
+		this.dequeue = new Queue<>();
+		enqueue.add(this.kirby);
+	}
+
+	public void initStack() {
+		this.instack = new Stack<>();
+		this.outstack = new Stack<>();
+		instack.push(this.kirby);
 	}
 
 	public void queueMove() {
@@ -144,26 +152,62 @@ public class Project1 {
 		}
 
 		if (this.cake == null) {
-			{
-				int[] next = { row - 1, col };
-				enqueue.add(next);
-				queueMove();
+			queueMove();
+		}
+	}
+
+	public void stackMove() {
+		int[] coordinates = instack.pop();
+		int row = coordinates[0];
+		int col = coordinates[1];
+		outstack.push(coordinates);
+
+		// North
+		if (isWalkable(row - 1, col) && !map[row - 1][col].isVisited()) {
+			int[] newCoordinates = { row - 1, col };
+			this.instack.push(newCoordinates);
+			map[row - 1][col].setVisited(true);
+			checkCake(row - 1, col);
+			if (this.cake != null) {
+				return;
 			}
-			{
-				int[] next = { row + 1, col };
-				enqueue.add(next);
-				queueMove();
+		}
+
+		// South
+		if (isWalkable(row + 1, col) && !map[row + 1][col].isVisited()) {
+			int[] newCoordinates = { row + 1, col };
+			this.instack.push(newCoordinates);
+			map[row + 1][col].setVisited(true);
+			checkCake(row + 1, col);
+			if (this.cake != null) {
+				return;
 			}
-			{
-				int[] next = { row, col + 1 };
-				enqueue.add(next);
-				queueMove();
+		}
+
+		// East
+		if (isWalkable(row, col + 1) && !map[row][col + 1].isVisited()) {
+			int[] newCoordinates = { row, col + 1 };
+			this.instack.push(newCoordinates);
+			map[row][col + 1].setVisited(true);
+			checkCake(row, col + 1);
+			if (this.cake != null) {
+				return;
 			}
-			{
-				int[] next = { row, col - 1 };
-				enqueue.add(next);
-				queueMove();
+		}
+
+		// West
+		if (isWalkable(row, col - 1) && !map[row][col - 1].isVisited()) {
+			int[] newCoordinates = { row, col - 1 };
+			this.instack.push(newCoordinates);
+			map[row][col - 1].setVisited(true);
+			checkCake(row, col - 1);
+			if (this.cake != null) {
+				return;
 			}
+		}
+
+		if (this.cake == null) {
+			stackMove();
 		}
 	}
 
@@ -279,6 +323,13 @@ public class Project1 {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	public void populateMap() {
+		if (isTextBased)
+			textBased();
+		else
+			coordinateBased();
 	}
 
 	@Override
