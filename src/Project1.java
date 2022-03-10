@@ -211,8 +211,8 @@ public class Project1 {
 
 	public boolean isWalkable(int r, int c) {
 		if (r >= 0 && r < this.map.length) {
-			if (c >= 0 && c < this.map.length) {
-				return true;
+			if (c >= 0 && c < this.map[r].length) {
+				return map[r][c].getValue() == '.';
 			}
 		}
 		return false;
