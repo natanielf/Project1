@@ -42,8 +42,8 @@ public class Project1 {
 		System.out.println(f1.getPath());
 		Project1 p1 = new Project1(f1);
 		System.out.println(p1);
-		System.out.println(p1.getCakeCoordinates());
-		p1.printThePathFromKirbyToCakeAsAStringForQueueBasedPathfindingAlgorithm();
+		// System.out.println(p1.getCakeCoordinates());
+		// p1.printThePathFromKirbyToCakeAsAStringForQueueBasedPathfindingAlgorithm();
 	}
 
 	public void printThePathFromKirbyToCakeAsAStringForQueueBasedPathfindingAlgorithm() {
@@ -99,7 +99,29 @@ public class Project1 {
 		instack.push(this.kirby);
 	}
 
+	public void queueMove(int row, int col) {
+		if (isWalkable(row, col) && !map[row][col].isVisited()) {
+			int[] newCoordinates = { row, col };
+			this.enqueue.add(newCoordinates);
+			dequeue.add(newCoordinates);
+			map[row][col].setVisited(true);
+			if (map[row][col].getValue() == 'C') {
+				checkCake(row, col);
+				return;
+			}
+		}
+		if (cake == null) {
+			queueMove(row - 1, col);
+			queueMove(row + 1, col);
+			queueMove(row, col + 1);
+			queueMove(row, col - 1);
+		}
+	}
+
 	public void queueMove() {
+		if (enqueue.size() == 0)
+			return;
+
 		int[] coordinates = enqueue.remove();
 		dequeue.add(coordinates);
 		int row = coordinates[0];
