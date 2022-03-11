@@ -9,6 +9,7 @@ public class Project1 {
 	private Queue<int[]> enqueue, dequeue;
 	private Stack<int[]> instack, outstack;
 	private int[] kirby, cake;
+	private boolean foundCake;
 	private Scanner s;
 	private boolean isTextBased;
 
@@ -21,6 +22,7 @@ public class Project1 {
 			this.map = new Tile[rows][cols];
 			this.s.nextLine();
 			this.isTextBased = f.getPath().substring(0, f.getPath().length() - 4).contains("t");
+			this.foundCake = false;
 
 			populateMap();
 
@@ -42,14 +44,14 @@ public class Project1 {
 		System.out.println(f1.getPath());
 		Project1 p1 = new Project1(f1);
 		System.out.println(p1);
-		// System.out.println(p1.getCakeCoordinates());
-		// p1.printThePathFromKirbyToCakeAsAStringForQueueBasedPathfindingAlgorithm();
+		System.out.println(p1.getCakeCoordinates());
+		p1.printQueuePath();
 	}
 
-	public void printThePathFromKirbyToCakeAsAStringForQueueBasedPathfindingAlgorithm() {
+	public void printQueuePath() {
 		System.out.println("Solution (Queue):");
 		Tile[][] solution = new Tile[this.rows][this.cols];
-		int[] curr = dequeue.remove();
+		int[] curr = null;
 		int[] next = dequeue.remove();
 		for (int r = 0; r < map.length; r++) {
 			for (int c = 0; c < map[r].length; c++) {
@@ -99,134 +101,92 @@ public class Project1 {
 		instack.push(this.kirby);
 	}
 
-	public void queueMove(int row, int col) {
-		if (isWalkable(row, col) && !map[row][col].isVisited()) {
-			int[] newCoordinates = { row, col };
-			this.enqueue.add(newCoordinates);
-			dequeue.add(newCoordinates);
-			map[row][col].setVisited(true);
-			if (map[row][col].getValue() == 'C') {
-				checkCake(row, col);
-				return;
-			}
-		}
-		if (cake == null) {
-			queueMove(row - 1, col);
-			queueMove(row + 1, col);
-			queueMove(row, col + 1);
-			queueMove(row, col - 1);
-		}
+	public boolean moveIsValid(int row, int col) {
+		return (isWalkable(row, col) && !map[row][col].isVisited());
 	}
 
 	public void queueMove() {
-		if (enqueue.size() == 0)
-			return;
-
 		int[] coordinates = enqueue.remove();
 		dequeue.add(coordinates);
 		int row = coordinates[0];
 		int col = coordinates[1];
 
-		// North
-		if (isWalkable(row - 1, col) && !map[row - 1][col].isVisited()) {
-			int[] newCoordinates = { row - 1, col };
-			this.enqueue.add(newCoordinates);
-			map[row - 1][col].setVisited(true);
-			checkCake(row - 1, col);
-			if (this.cake != null) {
-				return;
-			}
+		map[row][col].setVisited(true);
+
+		if (tileHoldsCake(row, col)) {
+			foundCake = true;
+			this.cake = new int[] { row, col };
 		}
 
-		// South
-		if (isWalkable(row + 1, col) && !map[row + 1][col].isVisited()) {
-			int[] newCoordinates = { row + 1, col };
-			this.enqueue.add(newCoordinates);
-			map[row + 1][col].setVisited(true);
-			checkCake(row + 1, col);
-			if (this.cake != null) {
-				return;
-			}
-		}
+		if (!foundCake) {
 
-		// East
-		if (isWalkable(row, col + 1) && !map[row][col + 1].isVisited()) {
-			int[] newCoordinates = { row, col + 1 };
-			this.enqueue.add(newCoordinates);
-			map[row][col + 1].setVisited(true);
-			checkCake(row, col + 1);
-			if (this.cake != null) {
-				return;
+			// North
+			if (moveIsValid(row - 1, col)) {
+				int[] newCoordinates = { row - 1, col };
+				enqueue.add(newCoordinates);
 			}
-		}
 
-		// West
-		if (isWalkable(row, col - 1) && !map[row][col - 1].isVisited()) {
-			int[] newCoordinates = { row, col - 1 };
-			this.enqueue.add(newCoordinates);
-			map[row][col - 1].setVisited(true);
-			checkCake(row, col - 1);
-			if (this.cake != null) {
-				return;
+			// South
+			if (moveIsValid(row + 1, col)) {
+				int[] newCoordinates = { row + 1, col };
+				enqueue.add(newCoordinates);
 			}
-		}
 
-		if (this.cake == null) {
+			// East
+			if (moveIsValid(row, col + 1)) {
+				int[] newCoordinates = { row, col + 1 };
+				enqueue.add(newCoordinates);
+			}
+
+			// West
+			if (moveIsValid(row, col - 1)) {
+				int[] newCoordinates = { row, col - 1 };
+				enqueue.add(newCoordinates);
+			}
+
 			queueMove();
 		}
 	}
 
 	public void stackMove() {
 		int[] coordinates = instack.pop();
+		outstack.push(coordinates);
 		int row = coordinates[0];
 		int col = coordinates[1];
-		outstack.push(coordinates);
 
-		// North
-		if (isWalkable(row - 1, col) && !map[row - 1][col].isVisited()) {
-			int[] newCoordinates = { row - 1, col };
-			this.instack.push(newCoordinates);
-			map[row - 1][col].setVisited(true);
-			checkCake(row - 1, col);
-			if (this.cake != null) {
-				return;
-			}
+		map[row][col].setVisited(true);
+
+		if (tileHoldsCake(row, col)) {
+			foundCake = true;
+			this.cake = new int[] { row, col };
 		}
 
-		// South
-		if (isWalkable(row + 1, col) && !map[row + 1][col].isVisited()) {
-			int[] newCoordinates = { row + 1, col };
-			this.instack.push(newCoordinates);
-			map[row + 1][col].setVisited(true);
-			checkCake(row + 1, col);
-			if (this.cake != null) {
-				return;
-			}
-		}
+		if (!foundCake) {
 
-		// East
-		if (isWalkable(row, col + 1) && !map[row][col + 1].isVisited()) {
-			int[] newCoordinates = { row, col + 1 };
-			this.instack.push(newCoordinates);
-			map[row][col + 1].setVisited(true);
-			checkCake(row, col + 1);
-			if (this.cake != null) {
-				return;
+			// North
+			if (moveIsValid(row - 1, col)) {
+				int[] newCoordinates = { row - 1, col };
+				instack.push(newCoordinates);
 			}
-		}
 
-		// West
-		if (isWalkable(row, col - 1) && !map[row][col - 1].isVisited()) {
-			int[] newCoordinates = { row, col - 1 };
-			this.instack.push(newCoordinates);
-			map[row][col - 1].setVisited(true);
-			checkCake(row, col - 1);
-			if (this.cake != null) {
-				return;
+			// South
+			if (moveIsValid(row + 1, col)) {
+				int[] newCoordinates = { row + 1, col };
+				instack.push(newCoordinates);
 			}
-		}
 
-		if (this.cake == null) {
+			// East
+			if (moveIsValid(row, col + 1)) {
+				int[] newCoordinates = { row, col + 1 };
+				instack.push(newCoordinates);
+			}
+
+			// West
+			if (moveIsValid(row, col - 1)) {
+				int[] newCoordinates = { row, col - 1 };
+				instack.push(newCoordinates);
+			}
+
 			stackMove();
 		}
 	}
@@ -234,18 +194,14 @@ public class Project1 {
 	public boolean isWalkable(int r, int c) {
 		if (r >= 0 && r < this.map.length) {
 			if (c >= 0 && c < this.map[r].length) {
-				return map[r][c].getValue() == '.';
+				return map[r][c].getValue() == '.' || map[r][c].getValue() == 'C';
 			}
 		}
 		return false;
 	}
 
-	public void checkCake(int r, int c) {
-		if (map[r][c].getValue() == 'C') {
-			cake = new int[2];
-			this.cake[0] = r;
-			this.cake[1] = c;
-		}
+	public boolean tileHoldsCake(int r, int c) {
+		return map[r][c].getValue() == 'C';
 	}
 
 	public String getCakeCoordinates() {
