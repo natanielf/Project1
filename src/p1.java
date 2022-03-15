@@ -11,6 +11,7 @@ public class p1 {
 	private int[] kirby, cake;
 	private boolean foundCake;
 	private Scanner s;
+	private boolean queueApproach = false, stackApproach = false, optimalApproach = false;
 	private boolean isTextBased;
 
 	public p1(File f) {
@@ -40,7 +41,18 @@ public class p1 {
 	}
 
 	public static void main(String[] args) {
-		File f1 = new File("./maps/map1t.txt");
+		if (args.length > 0) {
+			try {
+				File f = new File(args[args.length - 1]);
+				checkCLIArguments(args);
+				p1 project1 = new p1(f, args);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else {
+
+		}
+		File f1 = new File("./maps/map3t.txt");
 		System.out.println(f1.getPath());
 		p1 project1 = new p1(f1);
 		System.out.println(project1);
@@ -356,6 +368,25 @@ public class p1 {
 			str += "\n";
 		}
 		return str;
+	}
+
+	public void checkCLIArguments(String[] args) {
+		int numArgs = 0;
+		for (String arg : args) {
+			if (arg.equals("--Queue")) {
+				this.queueApproach = true;
+				queueApproach = true;
+			} else if (arg.equals("--Stack")) {
+				this.stackApproach = true;
+				stackApproach = true;
+			} else if (arg.equals("--Opt")) {
+				this.optimalApproach = true;
+				optimalApproach = true;
+			}
+		}
+		if (numArgs != 1) {
+			System.exit(1);
+		}
 	}
 
 }
