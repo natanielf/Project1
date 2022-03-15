@@ -45,19 +45,19 @@ public class Project1 {
 		Project1 p1 = new Project1(f1);
 		System.out.println(p1);
 		System.out.println(p1.getCakeCoordinates());
-		p1.printQueuePath();
+		p1.printQueuePath1();
 	}
 
 	public void printQueuePath() {
 		System.out.println("Solution (Queue):");
-		Tile[][] solution = new Tile[this.rows][this.cols];
-		int[] curr = null;
-		int[] next = dequeue.remove();
+		Tile[][] solution = new Tile[rows][cols];
 		for (int r = 0; r < map.length; r++) {
 			for (int c = 0; c < map[r].length; c++) {
 				solution[r][c] = new Tile(map[r][c].getValue());
 			}
 		}
+		int[] curr = null;
+		int[] next = dequeue.remove();
 		for (int i = 0; i < dequeue.size() - 1; i++) {
 			curr = next;
 			next = dequeue.remove();
@@ -66,12 +66,35 @@ public class Project1 {
 				solution[curr[0]][curr[1]].setValue('+');
 			}
 		}
-		for (int r = 0; r < solution.length; r++) {
-			for (int c = 0; c < solution[r].length; c++) {
-				System.out.print(solution[r][c].getValue());
+		System.out.println(toString(solution));
+	}
+
+	public void printQueuePath1() {
+		System.out.println("Solution (Queue):");
+		Tile[][] solution = new Tile[rows][cols];
+		for (int r = 0; r < map.length; r++) {
+			for (int c = 0; c < map[r].length; c++) {
+				solution[r][c] = new Tile(map[r][c].getValue());
 			}
-			System.out.println();
 		}
+//		int[] curr = null;
+//		int[] next = dequeue.remove();
+//		for (int i = 0; i < dequeue.size(); i++) {
+//			curr = dequeue.remove();
+//			next = dequeue.remove();
+//			if ((Math.abs(next[0] - kirby[0]) >= Math.abs(curr[0] - kirby[0])
+//					|| Math.abs(next[1] - kirby[1]) >= Math.abs(curr[1] - kirby[1]))) {
+//			solution[curr[0]][curr[1]].setValue('+');
+//			}
+//		}
+
+		while (dequeue.size() > 0) {
+			int[] curr = dequeue.remove();
+			if ((curr[0] != kirby[0] || curr[1] != kirby[1]) && (curr[0] != cake[0] || curr[1] != cake[1])) {
+				solution[curr[0]][curr[1]].setValue('+');
+			}
+		}
+		System.out.println(toString(solution));
 	}
 
 	public void findKirby() {
@@ -86,19 +109,19 @@ public class Project1 {
 			}
 		}
 		this.kirby = new int[] { kR, kC };
-		map[kirby[0]][kirby[1]].setVisited(true);
+		map[kR][kC].setVisited(true);
 	}
 
 	public void initQueue() {
 		this.enqueue = new Queue<>();
 		this.dequeue = new Queue<>();
-		enqueue.add(this.kirby);
+		enqueue.add(kirby);
 	}
 
 	public void initStack() {
 		this.instack = new Stack<>();
 		this.outstack = new Stack<>();
-		instack.push(this.kirby);
+		instack.push(kirby);
 	}
 
 	public boolean moveIsValid(int row, int col) {
@@ -111,29 +134,32 @@ public class Project1 {
 		int row = coordinates[0];
 		int col = coordinates[1];
 
-		map[row][col].setVisited(true);
-
 		if (tileHoldsCake(row, col)) {
 			foundCake = true;
-			this.cake = new int[] { row, col };
+			cake = new int[] { row, col };
 		}
+
+		map[row][col].setVisited(true);
 
 		if (!foundCake) {
 
 			// North
 			if (moveIsValid(row - 1, col)) {
 				int[] newCoordinates = { row - 1, col };
+				map[row - 1][col].setVisited(true);
 				enqueue.add(newCoordinates);
 			}
 
 			// South
 			if (moveIsValid(row + 1, col)) {
 				int[] newCoordinates = { row + 1, col };
+				map[row + 1][col].setVisited(true);
 				enqueue.add(newCoordinates);
 			}
 
 			// East
 			if (moveIsValid(row, col + 1)) {
+				map[row][col + 1].setVisited(true);
 				int[] newCoordinates = { row, col + 1 };
 				enqueue.add(newCoordinates);
 			}
@@ -141,6 +167,7 @@ public class Project1 {
 			// West
 			if (moveIsValid(row, col - 1)) {
 				int[] newCoordinates = { row, col - 1 };
+				map[row][col - 1].setVisited(true);
 				enqueue.add(newCoordinates);
 			}
 
@@ -154,12 +181,12 @@ public class Project1 {
 		int row = coordinates[0];
 		int col = coordinates[1];
 
-		map[row][col].setVisited(true);
-
 		if (tileHoldsCake(row, col)) {
 			foundCake = true;
 			this.cake = new int[] { row, col };
 		}
+
+		map[row][col].setVisited(true);
 
 		if (!foundCake) {
 
@@ -310,6 +337,17 @@ public class Project1 {
 
 	@Override
 	public String toString() {
+		String str = "";
+		for (int r = 0; r < map.length; r++) {
+			for (int c = 0; c < map[r].length; c++) {
+				str += map[r][c].getValue();
+			}
+			str += "\n";
+		}
+		return str;
+	}
+
+	public String toString(Tile[][] map) {
 		String str = "";
 		for (int r = 0; r < map.length; r++) {
 			for (int c = 0; c < map[r].length; c++) {
