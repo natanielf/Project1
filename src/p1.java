@@ -10,9 +10,10 @@ public class p1 {
 	private Stack<int[]> instack, outstack;
 	private int[] kirby, cake;
 	private boolean foundCake;
+	private File f;
 	private Scanner s;
-	private boolean queueApproach = false, stackApproach = false, optimalApproach = false;
-	private boolean isTextBased;
+	private boolean queueApproach, stackApproach, optimalApproach;
+	private boolean isTextBased, printTextBased;
 
 	public p1(File f) {
 		try {
@@ -23,6 +24,7 @@ public class p1 {
 			this.map = new Tile[rows][cols];
 			this.s.nextLine();
 			this.isTextBased = f.getPath().substring(0, f.getPath().length() - 4).contains("t");
+			this.printTextBased = true;
 			this.foundCake = false;
 
 			populateMap();
@@ -40,28 +42,42 @@ public class p1 {
 		}
 	}
 
-	public static void main(String[] args) {
-		if (args.length > 0) {
-			try {
-				File f = new File(args[args.length - 1]);
-				checkCLIArguments(args);
-				p1 project1 = new p1(f, args);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		} else {
+	public p1(String[] args) {
+		this.printTextBased = true;
+		this.isTextBased = true;
+		checkCLIArguments(args);
 
+		this.rows = s.nextInt();
+		this.cols = s.nextInt();
+		this.rooms = s.nextInt();
+		this.map = new Tile[rows][cols];
+		this.s.nextLine();
+		this.foundCake = false;
+
+		populateMap();
+
+		findKirby();
+
+		if (queueApproach) {
+			initQueue();
+			queueMove();
+			if (printTextBased) {
+				printQueuePathTextBased();
+			}
+		} else if (stackApproach) {
+			initStack();
+			stackMove();
+		} else {
+			// optimal approach
 		}
-		File f1 = new File("./maps/map3t.txt");
-		System.out.println(f1.getPath());
-		p1 project1 = new p1(f1);
-		System.out.println(project1);
-		System.out.println(project1.getCakeCoordinates());
-		project1.printQueuePath1();
+
 	}
 
-	public void printQueuePath() {
-		System.out.println("Solution (Queue):");
+	public static void main(String[] args) {
+		p1 p = new p1(args);
+	}
+
+	public void printQueuePathTextBased() {
 		Tile[][] solution = new Tile[rows][cols];
 		for (int r = 0; r < map.length; r++) {
 			for (int c = 0; c < map[r].length; c++) {
@@ -70,35 +86,32 @@ public class p1 {
 		}
 		int[] curr = null;
 		int[] next = dequeue.remove();
-		for (int i = 0; i < dequeue.size() - 1; i++) {
+		while (dequeue.size() > 0) {
 			curr = next;
 			next = dequeue.remove();
-			if ((curr[0] == next[0] && curr[1] == next[1] || curr[1] == next[1] + 1 || curr[1] == next[1] - 1)
-					|| (curr[1] == next[1] && curr[0] == next[0] || curr[0] == next[0] + 1 || curr[0] == next[0] - 1)) {
-				solution[curr[0]][curr[1]].setValue('+');
+			if ((curr[0] != kirby[0] || curr[1] != kirby[1]) && (curr[0] != cake[0] || curr[1] != cake[1])) {
+				if (!solution[curr[0]][curr[1]].isVisited()) {
+					if ((curr[0] == next[0] && curr[1] == next[1] || curr[1] == next[1] + 1 || curr[1] == next[1] - 1)
+							|| (curr[1] == next[1] && curr[0] == next[0] || curr[0] == next[0] + 1
+									|| curr[0] == next[0] - 1)) {
+						solution[curr[0]][curr[1]].setValue('+');
+						solution[curr[0]][curr[1]].setVisited(true);
+					}
+				}
+
 			}
+
 		}
 		System.out.println(toString(solution));
 	}
 
-	public void printQueuePath1() {
-		System.out.println("Solution (Queue):");
+	public void printQueuePathTextBased1() {
 		Tile[][] solution = new Tile[rows][cols];
 		for (int r = 0; r < map.length; r++) {
 			for (int c = 0; c < map[r].length; c++) {
 				solution[r][c] = new Tile(map[r][c].getValue());
 			}
 		}
-//		int[] curr = null;
-//		int[] next = dequeue.remove();
-//		for (int i = 0; i < dequeue.size(); i++) {
-//			curr = dequeue.remove();
-//			next = dequeue.remove();
-//			if ((Math.abs(next[0] - kirby[0]) >= Math.abs(curr[0] - kirby[0])
-//					|| Math.abs(next[1] - kirby[1]) >= Math.abs(curr[1] - kirby[1]))) {
-//			solution[curr[0]][curr[1]].setValue('+');
-//			}
-//		}
 
 		while (dequeue.size() > 0) {
 			int[] curr = dequeue.remove();
@@ -371,22 +384,55 @@ public class p1 {
 	}
 
 	public void checkCLIArguments(String[] args) {
-		int numArgs = 0;
+		int numApproachArgs = 0;
+		boolean displayHelp = false;
 		for (String arg : args) {
 			if (arg.equals("--Queue")) {
 				this.queueApproach = true;
-				queueApproach = true;
+				numApproachArgs++;
 			} else if (arg.equals("--Stack")) {
 				this.stackApproach = true;
-				stackApproach = true;
+				numApproachArgs++;
 			} else if (arg.equals("--Opt")) {
 				this.optimalApproach = true;
-				optimalApproach = true;
+				numApproachArgs++;
+			} else if (arg.equals("--Incoordinate")) {
+				this.isTextBased = false;
+			} else if (arg.equals("--Outcoordinate")) {
+				this.printTextBased = false;
+			} else if (arg.equals("--Help")) {
+				displayHelp = true;
 			}
 		}
-		if (numArgs != 1) {
-			System.exit(1);
+		if (displayHelp) {
+			String[] helpText = { "Help Kirby find the cake!", "Arguments:", "--Stack: Use the stack-based approach.",
+					"--Queue: Find the shortest path,", "--Time: Print the runtime of the program as described above.",
+					"--Incoordinate: The input file is in the coordinate-based system. If the switch is not set, the input file is in the text-map format.",
+					"--Outcoordinate: The output file is in the coordinate-based system. If the switch is not set, the output file is in the text-map format.",
+					"--Help: Displays this message and then exits." };
+			for (String line : helpText) {
+				System.out.println(line);
+			}
+			System.exit(0);
+		}
+		if (numApproachArgs != 1) {
+			System.err.println("Error: Invalid arguments supplied.");
+			System.err.println("Legal command line inputs must include exactly one of --Stack, --Queue, or --Opt.");
+			System.exit(-1);
+		}
+		if (args.length > 0) {
+			try {
+				this.f = new File(args[args.length - 1]);
+			} catch (Exception e) {
+				System.err.println("Error: File not found.");
+				e.printStackTrace();
+			}
+
+			try {
+				this.s = new Scanner(f);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
-
 }
