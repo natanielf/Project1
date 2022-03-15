@@ -2,7 +2,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-public class Project1 {
+public class p1 {
 
 	private int rows, cols, rooms;
 	private Tile[][] map;
@@ -13,7 +13,7 @@ public class Project1 {
 	private Scanner s;
 	private boolean isTextBased;
 
-	public Project1(File f) {
+	public p1(File f) {
 		try {
 			this.s = new Scanner(f);
 			this.rows = s.nextInt();
@@ -42,10 +42,10 @@ public class Project1 {
 	public static void main(String[] args) {
 		File f1 = new File("./maps/map1t.txt");
 		System.out.println(f1.getPath());
-		Project1 p1 = new Project1(f1);
-		System.out.println(p1);
-		System.out.println(p1.getCakeCoordinates());
-		p1.printQueuePath1();
+		p1 project1 = new p1(f1);
+		System.out.println(project1);
+		System.out.println(project1.getCakeCoordinates());
+		project1.printQueuePath1();
 	}
 
 	public void printQueuePath() {
