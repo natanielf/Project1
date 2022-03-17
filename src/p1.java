@@ -13,7 +13,12 @@ public class p1 {
 	private File f;
 	private Scanner s;
 	private boolean queueApproach, stackApproach, optimalApproach;
-	private boolean isTextBased, printTextBased;
+	private boolean isTextBased, printTextBased, printTime;
+	private long startTime, endTime;
+
+	public p1() {
+		// Implementation not shown ;)
+	}
 
 	public p1(File f) {
 		try {
@@ -45,6 +50,7 @@ public class p1 {
 	public p1(String[] args) {
 		this.printTextBased = true;
 		this.isTextBased = true;
+		this.printTime = false;
 		checkCLIArguments(args);
 
 		this.rows = s.nextInt();
@@ -61,21 +67,31 @@ public class p1 {
 
 		findKirby();
 
+		this.startTime = System.currentTimeMillis();
+
 		if (queueApproach) {
 			initQueue();
 			queueMove();
+			this.endTime = System.currentTimeMillis();
 			if (!foundCake) {
 				System.out.println("The cake is a lie.");
 				System.exit(1);
 			}
 			printQueuePath();
+			if (printTime) {
+				System.out.println("Total Runtime: " + millisToSec(endTime - startTime) + " seconds");
+			}
 		} else if (stackApproach) {
 			initStack();
 			stackMove();
-			printStackPath();
+			this.endTime = System.currentTimeMillis();
 			if (!foundCake) {
 				System.out.println("The cake is a lie.");
 				System.exit(1);
+			}
+			printStackPath();
+			if (printTime) {
+				System.out.println("Total Runtime: " + millisToSec(endTime - startTime) + " seconds");
 			}
 		} else {
 			// optimal approach
@@ -401,6 +417,8 @@ public class p1 {
 				this.printTextBased = false;
 			} else if (arg.equals("--Help")) {
 				displayHelp = true;
+			} else if (arg.equals("--Time")) {
+				this.printTime = true;
 			}
 		}
 		if (displayHelp) {
@@ -440,5 +458,9 @@ public class p1 {
 			System.err.println("Error: Invalid map parameters. Maps must have more than 0 rows, columns, and rooms.");
 			System.exit(-1);
 		}
+	}
+
+	public double millisToSec(long ms) {
+		return (double) (ms / 1000.0);
 	}
 }
