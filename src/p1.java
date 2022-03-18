@@ -75,11 +75,10 @@ public class p1 {
 			this.endTime = System.currentTimeMillis();
 			if (!foundCake) {
 				System.out.println("The cake is a lie.");
-				System.exit(1);
 			}
 			printQueuePath();
 			if (printTime) {
-				System.out.println("Total Runtime: " + millisToSec(endTime - startTime) + " seconds");
+				printTime();
 			}
 		} else if (stackApproach) {
 			initStack();
@@ -87,14 +86,16 @@ public class p1 {
 			this.endTime = System.currentTimeMillis();
 			if (!foundCake) {
 				System.out.println("The cake is a lie.");
-				System.exit(1);
 			}
 			printStackPath();
 			if (printTime) {
-				System.out.println("Total Runtime: " + millisToSec(endTime - startTime) + " seconds");
+				printTime();
 			}
 		} else {
 			// optimal approach
+			if (printTime) {
+				printTime();
+			}
 		}
 
 	}
@@ -458,6 +459,10 @@ public class p1 {
 			System.err.println("Error: Invalid map parameters. Maps must have more than 0 rows, columns, and rooms.");
 			System.exit(-1);
 		}
+	}
+
+	public void printTime() {
+		System.out.println("Total Runtime: " + millisToSec(endTime - startTime) + " seconds");
 	}
 
 	public double millisToSec(long ms) {
