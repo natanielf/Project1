@@ -10,6 +10,8 @@ public class p1 {
 	private Stack<int[]> instack, outstack;
 	private int[] kirby, cake;
 	private boolean foundCake;
+	private char target;
+	private int roomsVisited;
 	private File f;
 	private Scanner s;
 	private boolean queueApproach, stackApproach, optimalApproach;
@@ -59,40 +61,76 @@ public class p1 {
 
 		checkMapParameters();
 
-		this.map = new Tile[rows][cols];
+		this.map = new Tile[rows * rooms][cols];
 		this.s.nextLine();
 		this.foundCake = false;
+		this.target = 'C';
+		this.roomsVisited = 0;
+		this.kirby = new int[2];
 
 		populateMap();
-
-		findKirby();
 
 		this.startTime = System.currentTimeMillis();
 
 		if (queueApproach) {
+			findKirby();
 			initQueue();
-			queueMove();
+
+			while (roomsVisited < rooms) {
+				if ((rooms - roomsVisited) == 1)
+					target = 'C';
+				else
+					target = '|';
+
+				queueMove();
+				roomsVisited++;
+				if (roomsVisited < rooms) {
+					findKirby();
+					enqueue.add(kirby);
+				}
+			}
+
 			this.endTime = System.currentTimeMillis();
-			if (!foundCake) {
+
+			if (!foundCake)
 				System.out.println("The cake is a lie.");
-			}
-			printQueuePath();
-			if (printTime) {
+			else
+				printQueuePath();
+
+			if (printTime)
 				printTime();
-			}
+
 		} else if (stackApproach) {
+			findKirby();
 			initStack();
-			stackMove();
+
+			while (roomsVisited < rooms) {
+				if ((rooms - roomsVisited) == 1)
+					target = 'C';
+				else
+					target = '|';
+
+				stackMove();
+				roomsVisited++;
+				if (roomsVisited < rooms) {
+					findKirby();
+					instack.push(kirby);
+				}
+			}
+
 			this.endTime = System.currentTimeMillis();
-			if (!foundCake) {
+
+			if (!foundCake)
 				System.out.println("The cake is a lie.");
-			}
-			printStackPath();
-			if (printTime) {
+			else
+				printStackPath();
+
+			if (printTime)
 				printTime();
-			}
+
 		} else {
 			// optimal approach
+			this.endTime = System.currentTimeMillis();
 			if (printTime) {
 				printTime();
 			}
@@ -112,8 +150,9 @@ public class p1 {
 				int[] curr = dequeue.remove();
 				int row = curr[0];
 				int col = curr[1];
+				char val = solution[row][col].getValue();
 
-				if ((row != kirby[0] || col != kirby[1]) && (row != cake[0] || col != cake[1])) {
+				if (val != 'K' && val != 'C' && val != '|') {
 					solution[curr[0]][curr[1]].setValue('+');
 				}
 			}
@@ -136,9 +175,10 @@ public class p1 {
 				int[] curr = outstack.pop();
 				int row = curr[0];
 				int col = curr[1];
+				char val = solution[row][col].getValue();
 
-				if ((row != kirby[0] || col != kirby[1]) && (row != cake[0] || col != cake[1])) {
-					solution[row][col].setValue('+');
+				if (val != 'K' && val != 'C' && val != '|') {
+					solution[curr[0]][curr[1]].setValue('+');
 				}
 			}
 			System.out.println(toString(solution));
@@ -153,19 +193,20 @@ public class p1 {
 	}
 
 	public void findKirby() {
-		int kR = -1;
-		int kC = -1;
 		for (int r = 0; r < map.length; r++) {
 			for (int c = 0; c < map[r].length; c++) {
 				if (map[r][c].getValue() == 'K') {
-					kR = r;
-					kC = c;
+					if (!map[r][c].isVisited()) {
+						this.kirby[0] = r;
+						this.kirby[1] = c;
+						map[r][c].setVisited(true);
+						return;
+					}
 				}
 			}
 		}
-
-		this.kirby = new int[] { kR, kC };
-		map[kR][kC].setVisited(true);
+		System.err.println("Error: Cannot find Kirby.");
+		System.exit(-1);
 	}
 
 	public void initQueue() {
@@ -185,6 +226,9 @@ public class p1 {
 	}
 
 	public void queueMove() {
+		if (enqueue.size() <= 0)
+			return;
+
 		int[] coordinates = enqueue.remove();
 		int row = coordinates[0];
 		int col = coordinates[1];
@@ -215,12 +259,14 @@ public class p1 {
 			if (moveIsValid(row, col - 1))
 				enqueue.add(new int[] { row, col - 1 });
 
-			if (enqueue.size() > 0)
-				queueMove();
+			queueMove();
 		}
 	}
 
 	public void stackMove() {
+		if (instack.size() <= 0)
+			return;
+
 		int[] coordinates = instack.pop();
 		int row = coordinates[0];
 		int col = coordinates[1];
@@ -251,18 +297,21 @@ public class p1 {
 			if (moveIsValid(row, col - 1))
 				instack.push(new int[] { row, col - 1 });
 
-			if (instack.size() > 0)
-				stackMove();
+			stackMove();
 		}
 	}
 
 	public boolean isWalkable(int r, int c) {
 		if (r >= 0 && r < this.map.length) {
 			if (c >= 0 && c < this.map[r].length) {
-				return map[r][c].getValue() == '.' || map[r][c].getValue() == 'C';
+				return map[r][c].getValue() == '.' || map[r][c].getValue() == 'C' || map[r][c].getValue() == '|';
 			}
 		}
 		return false;
+	}
+
+	public boolean tileHoldsTarget(int r, int c) {
+		return map[r][c].getValue() == target;
 	}
 
 	public boolean tileHoldsCake(int r, int c) {
