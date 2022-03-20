@@ -139,7 +139,7 @@ public class p1 {
 	}
 
 	public static void main(String[] args) {
-		p1 p = new p1(args);
+		new p1(args);
 	}
 
 	public void printQueuePath() {
@@ -158,12 +158,14 @@ public class p1 {
 			}
 			System.out.println(toString(solution));
 		} else {
+			String str = "";
 			while (dequeue.size() > 0) {
 				int[] curr = dequeue.remove();
 				int row = curr[0];
 				int col = curr[1];
-				System.out.println("+ " + row + " " + col);
+				str += "+ " + row + " " + col + "\n";
 			}
+			System.out.println(str);
 		}
 	}
 
@@ -324,10 +326,20 @@ public class p1 {
 
 	public void textBased() {
 		int r = 0;
-		while (s.hasNextLine()) {
+		while (s.hasNextLine() && r < map.length) {
 			char[] line = s.nextLine().toCharArray();
+			if (line.length != cols) {
+				System.err.println("Error: Invalid column size provided.");
+				System.err.println("The map has " + line.length + " columns, but should have " + cols + " columns.");
+				System.exit(-1);
+			}
 			for (int c = 0; c < line.length; c++) {
-				map[r][c] = new Tile(line[c]);
+				if (line[c] != '.' && line[c] != '@' && line[c] != '|' && line[c] != 'K' && line[c] != 'C') {
+					System.err.println("Error: Invalid map character found.");
+					System.err.println("Legal map charaters: '.', '@', '|', 'K', 'C'. " + line[c] + " was found.");
+					System.exit(-1);
+				} else
+					map[r][c] = new Tile(line[c]);
 			}
 			r++;
 		}
@@ -340,10 +352,24 @@ public class p1 {
 			}
 		}
 		while (s.hasNextLine()) {
-			char[] line = s.nextLine().toCharArray();
-			int row = Character.getNumericValue(line[2]);
-			int col = Character.getNumericValue(line[4]);
-			map[row][col].setValue(line[0]);
+			String[] line = s.nextLine().trim().split(" ");
+			char value = line[0].toCharArray()[0];
+			int row = Integer.parseInt(line[1]);
+			int col = Integer.parseInt(line[2]);
+			if (row < 0 || row >= rows) {
+				System.err.println("Error: Invalid row coordinate provided.");
+				System.err.println("The map has " + rows + " rows, but row " + row + " was found.");
+				System.exit(-1);
+			} else if (col < 0 || col >= cols) {
+				System.err.println("Error: Invalid column coordinate provided.");
+				System.err.println("The map has " + cols + " columns, but column " + col + " was found.");
+				System.exit(-1);
+			} else if (value != '.' && value != '@' && value != '|' && value != 'K' && value != 'C') {
+				System.err.println("Error: Invalid map character found.");
+				System.err.println("Legal map charaters: '.', '@', '|', 'K', 'C'. " + value + " was found.");
+				System.exit(-1);
+			} else
+				map[row][col].setValue(value);
 		}
 	}
 
