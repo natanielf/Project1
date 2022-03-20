@@ -10,6 +10,7 @@ public class p1 {
 	private Stack<int[]> instack, outstack;
 	private int[] kirby, cake;
 	private boolean foundCake;
+	private String pathToCake;
 	private char target;
 	private int roomsVisited;
 	private File f;
@@ -67,6 +68,7 @@ public class p1 {
 		this.target = 'C';
 		this.roomsVisited = 0;
 		this.kirby = new int[2];
+		this.pathToCake = "";
 
 		populateMap();
 
@@ -90,15 +92,14 @@ public class p1 {
 				}
 			}
 
-			this.endTime = System.currentTimeMillis();
-
 			if (!foundCake)
 				System.out.println("The cake is a lie.");
-			else
-				printQueuePath();
+			else {
+				findQueuePath();
+				printPath();
+			}
 
-			if (printTime)
-				printTime();
+			printTime();
 
 		} else if (stackApproach) {
 			findKirby();
@@ -118,22 +119,20 @@ public class p1 {
 				}
 			}
 
-			this.endTime = System.currentTimeMillis();
-
 			if (!foundCake)
 				System.out.println("The cake is a lie.");
-			else
-				printStackPath();
+			else {
+				findStackPath();
+				printPath();
+			}
 
-			if (printTime)
-				printTime();
+			printTime();
 
 		} else {
 			// optimal approach
 			this.endTime = System.currentTimeMillis();
-			if (printTime) {
-				printTime();
-			}
+			printTime();
+
 		}
 
 	}
@@ -142,7 +141,7 @@ public class p1 {
 		new p1(args);
 	}
 
-	public void printQueuePath() {
+	public void findQueuePath() {
 		Tile[][] solution = map.clone();
 
 		if (printTextBased) {
@@ -156,20 +155,19 @@ public class p1 {
 					solution[curr[0]][curr[1]].setValue('+');
 				}
 			}
-			System.out.println(toString(solution));
+			pathToCake = toString(solution);
 		} else {
-			String str = "";
 			while (dequeue.size() > 0) {
 				int[] curr = dequeue.remove();
 				int row = curr[0];
 				int col = curr[1];
-				str += "+ " + row + " " + col + "\n";
+				pathToCake += "+ " + row + " " + col + "\n";
 			}
-			System.out.println(str);
 		}
+		endTime = System.currentTimeMillis();
 	}
 
-	public void printStackPath() {
+	public void findStackPath() {
 		Tile[][] solution = map.clone();
 
 		if (printTextBased) {
@@ -183,15 +181,16 @@ public class p1 {
 					solution[curr[0]][curr[1]].setValue('+');
 				}
 			}
-			System.out.println(toString(solution));
+			pathToCake = toString(solution);
 		} else {
 			while (outstack.size() > 0) {
 				int[] curr = outstack.pop();
 				int row = curr[0];
 				int col = curr[1];
-				System.out.println("+ " + row + " " + col);
+				pathToCake += "+ " + row + " " + col + "\n";
 			}
 		}
+		endTime = System.currentTimeMillis();
 	}
 
 	public void findKirby() {
@@ -537,10 +536,15 @@ public class p1 {
 	}
 
 	public void printTime() {
-		System.out.println("Total Runtime: " + millisToSec(endTime - startTime) + " seconds");
+		if (printTime)
+			System.out.println("Total Runtime: " + millisToSec(endTime - startTime) + " seconds");
 	}
 
 	public double millisToSec(long ms) {
 		return (double) (ms / 1000.0);
+	}
+
+	public void printPath() {
+		System.out.println(pathToCake);
 	}
 }
