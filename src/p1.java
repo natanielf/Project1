@@ -161,7 +161,10 @@ public class p1 {
 				int[] curr = dequeue.remove();
 				int row = curr[0];
 				int col = curr[1];
-				pathToCake += "+ " + row + " " + col + "\n";
+				char val = solution[row][col].getValue();
+
+				if (val != 'K' && val != 'C' && val != '|')
+					pathToCake += "+ " + row + " " + col + "\n";
 			}
 		}
 		endTime = System.currentTimeMillis();
@@ -187,7 +190,12 @@ public class p1 {
 				int[] curr = outstack.pop();
 				int row = curr[0];
 				int col = curr[1];
-				pathToCake += "+ " + row + " " + col + "\n";
+				char val = solution[row][col].getValue();
+
+				if (val != 'K' && val != 'C' && val != '|') {
+					String temp = pathToCake;
+					pathToCake = "+ " + row + " " + col + "\n" + temp;
+				}
 			}
 		}
 		endTime = System.currentTimeMillis();
